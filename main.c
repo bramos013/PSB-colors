@@ -16,12 +16,8 @@ Image24 pic;
 // Imagem de 8 bits
 Image8 pic8;
 
-// Color
-//Color cor;
-
 // Modo de exibição atual
 int modo;
-
 
 // Protótipos
 void load(char* name, Image24* pic);
@@ -39,80 +35,55 @@ void load(char* name, Image24* pic)
     }
     printf("Load: %d x %d x %d\n", pic->width, pic->height, chan);
 }
-  
 
 // Função principal de processamento: ela deve chamar outras funções
 // quando for necessário
 
 void process()
 {
-    //int tam = pic.width * pic.height;
-    int tam = 10000;
+    //int tam = 5000;
+    int tam = pic.width * pic.height;    
     int cor[tam];
+    int count;
+    int continua=1;
     RGB8 paletaCompleta[tam];
     RGB8 amostra[tam];
-    int count;
-    int corAtual = 0;
+    RGB8 aux;
     
-
-//ATUALMENTE ESTE CÓDIGO CAPTURA O TOM DE VERMELHO E A QUANTIDADE DE VEZES QUE ELE APARECE
-    
-    //Preencher a paleta de cores com todas as cores
-    for(int i = 0; i < tam; i++){
-        paletaCompleta[i] = pic.pixels[i];            
-        //printf("R=%d G=%d B=%d\n", paletaCompleta[0].r, paletaCompleta[0].g, paletaCompleta[0].b);
-    }
-    
-    //Ordenar a paleta de cores
-    int continua =1;
-    while(continua){
-        continua = 0;
-        //Ordenar do MAIOR R para o MENOR
+        //CRIAÇÃO DO ARRAY DE CORES 
         for(int i = 0; i < tam; i++){
-            if(paletaCompleta[i].r < paletaCompleta[i+1].r){
-                RGB8 tmp;;
-                continua = 1;
-                tmp = paletaCompleta[i];
-                paletaCompleta[i] = paletaCompleta[i + 1];
-                paletaCompleta[i + 1] = tmp;
-            }            
-        }
-        //Ordenar do MAIOR G para o MENOR
-        for (int i = 0; i < tam; i++)
-        {
-            if(paletaCompleta[i].r == paletaCompleta[i+1].r){                
-                if (paletaCompleta[i].g < paletaCompleta[i+1].g)
-                {
-                    RGB8 tmp;;
-                    continua = 1;
-                    tmp = paletaCompleta[i];
-                    paletaCompleta[i] = paletaCompleta[i + 1];
-                    paletaCompleta[i + 1] = tmp;
-                }                                
+            //ORDENAÇÃO DO ARRAY
+            for(int j = 0; j < tam; j++){                                     
+                //ORDENAÇÃO POR VERMELHO
+                if(paletaCompleta[i].r < paletaCompleta[j].r){                    
+                    aux = paletaCompleta[i];
+                    paletaCompleta[i] = paletaCompleta[j];
+                    paletaCompleta[j] = aux;                    
+                }                            
+                //ORDENAÇÃO POR VERDE
+                if(paletaCompleta[i].r == paletaCompleta[j].r){                
+                    if (paletaCompleta[i].g < paletaCompleta[j].g){
+                        aux = paletaCompleta[i];
+                        paletaCompleta[i] = paletaCompleta[j];
+                        paletaCompleta[j] = aux;                                        
+                    }                                
+                }
+                //ORDENAÇÃO POR AZUL
+                if(paletaCompleta[i].r == paletaCompleta[j].r){                
+                    if (paletaCompleta[i].g == paletaCompleta[j].g){
+                        if (paletaCompleta[i].b < paletaCompleta[j].b){                           
+                            aux = paletaCompleta[i];
+                            paletaCompleta[i] = paletaCompleta[j];
+                            paletaCompleta[j] = aux;
+                        }                                
+                    }    
+                }
             }
         }        
-        //Ordenar do MAIOR B para o MENOR
-        for (int i = 0; i < tam; i++)
-        {
-            if(paletaCompleta[i].r == paletaCompleta[i+1].r){                
-                if (paletaCompleta[i].g == paletaCompleta[i+1].g)
-                {
-                    if (paletaCompleta[i].b < paletaCompleta[i+1].b){
-                    RGB8 tmp;;
-                    continua = 1;
-                    tmp = paletaCompleta[i];
-                    paletaCompleta[i] = paletaCompleta[i + 1];
-                    paletaCompleta[i + 1] = tmp;
-                }                                
-            }
-        }
-
-        //Verificar a quantidade de vezes que cada RGB aparece
-        for (int i = 0; i < tam; i++)
-        {
+        //ARMAZENA A QUANTIDADE DE CADA COR
+        for(int i = 0; i < tam; i++){
             count = 0;
-            for (int j = 0; j < tam; j++)
-            {
+            for (int j = 0; j < tam; j++){
                 if(paletaCompleta[i].r == paletaCompleta[j].r){
                     if(paletaCompleta[i].g == paletaCompleta[j].g){
                         if(paletaCompleta[i].b == paletaCompleta[j].b){
@@ -122,16 +93,12 @@ void process()
                 }
             }
             paletaCompleta[i].quantidade = count;
-        }
-
-        //Criar um vetor com uma amostra de cada RGB
-        
+        }         
+        //ARMAZENA UMA VEZ CADA COR  NO ARRAY DE AMOSTRA  
         int p = 0;
-        for (int i = 0; i < tam; i++)
-        {
+        for (int i = 0; i < tam; i++){
             int valida=1;
-            for (int j = 0; j < tam; j++)
-            {
+            for (int j = 0; j < tam; j++){
                 if(paletaCompleta[i].r == amostra[j].r && paletaCompleta[i].g == amostra[j].g && paletaCompleta[i].b == amostra[j].b){                    
                     valida = 0;                                        
                 }
@@ -142,78 +109,33 @@ void process()
                 p++;                
             }            
         }
-        
-        
-    }
-    //Ordenar o vetor de amostras pela quantidade de vezes que aparece
-    int continua =1;
-    while(continua){
-        continua = 0;
-        //Ordenar da MAIOR quantidade para o MENOR
+
+        //ORDENA A QUANTIDADE DE CADA COR
         for(int i = 0; i < tam; i++){
-            if(amostra[i].quantidade < amostra[i+1].quantidade){
-                RGB8 tmp;;
-                continua = 1;
-                tmp = amostra[i];
+            if(amostra[i].quantidade < amostra[i+1].quantidade){                                
+                aux = amostra[i];
                 amostra[i] = amostra[i + 1];
-                amostra[i + 1] = tmp;
+                amostra[i + 1] = aux;
             }            
         }
-    }
 
-    //Preencher a paleta final com as 256 cores maiormente repetidas
-    for(int i = 0; i < 256; i++){
+        for(int i = 0; i < 256; i++){
         if(amostra[i].quantidade > 0 && amostra[i].quantidade < 48){
             pic8.pal[i] = amostra[i];
         }
     }
 
-    //Imprime ordenado
-    for(int i = 0; i < 256; i++){
-           printf("R=%d G=%d B=%d\n", pic8.pal[i].r, pic8.pal[i].g, pic8.pal[i].b);        
-    }
-
-
-    
-    
-    /*
-    
-    //Passa por todos os pixels da imagem    
-    for (int i = 0; i < 10; i++){      
-        count = 0;
-
-        //Percorre a imagem e acrescenta cada tom de vermelho ao vetor cor
-       for (int j = 0; j < (int)( sizeof(cor) / sizeof(cor[0])); j++){
-            cor[i] = pic.pixels[i].r;                     
-            corAtual = pic.pixels[j].r;
-
-            //Verifica se o tom de vermelho atual é igual ao tom de vermelho da imagem
-            if (cor[i] == cor[j]){
-                count++;                             
-            }               
-       }                     
-            //printf("\nCor=%d Count=%d", cor[i],count);
-            
-    }
+        for (int i = 0; i < 256; i++)
+        {
+            printf("R=%d G=%d B=%d Quantidade=%d\n", pic8.pal[i].r, pic8.pal[i].g, pic8.pal[i].b, pic8.pal[i].quantidade);
+        }
         
-
-pal[0] = {0,0,0};
-
-    printf("\nORDENAÇÃO");
-    ordenaVetor(cor, tam);
-    
-    for (int i = 0; i < 20; i++)
-    {
-        printf("\n%d", cor[i]);
-    }
-    
-      */ 
     //
     // NÃO ALTERAR A PARTIR DAQUI!!!!
     //
     buildTex();
     
-    }
+    
 }
 int main(int argc, char** argv)
 {
