@@ -36,6 +36,10 @@ void load(char* name, Image24* pic)
     printf("Load: %d x %d x %d\n", pic->width, pic->height, chan);
 }
 
+double distanciaRGB(RGB8* p1, RGB8* p2){
+    return pow(p1->r - p2->r, 2) + pow(p1->g - p2->g, 2) + pow(p1->b - p2->b, 2);
+}
+
 // Função principal de processamento: ela deve chamar outras funções
 // quando for necessário
 
@@ -125,10 +129,26 @@ void process()
         }
     }
 
-        for (int i = 0; i < 256; i++)
-        {
-            printf("R=%d G=%d B=%d Quantidade=%d\n", pic8.pal[i].r, pic8.pal[i].g, pic8.pal[i].b, pic8.pal[i].quantidade);
+    //VARIAVEL AUXILIAR PARA VERIFICAR A DISTANCIA ENTRE OS PIXELS
+    int menor=255;
+    RGB8 corSemelhante;
+
+    //CAPTA PIXELS DA IMAGEM DE ENTRADA
+    for (int i = 0; i < 100000; i++){
+        //VERIFICA NA PALETA DE CORES QUAL A COR DO PIXEL ORIGEM É MAIS SEMELHANTE 
+        for (int j = 0; j < 256; j++){
+            printf("I=$%d J=$%d\n", i, j);
+
+            if(menor > distanciaRGB(&pic.pixels[i], &pic8.pal[j])){
+               pic.pixels[i] = pic8.pal[j];
+               menor = distanciaRGB(&pic.pixels[i], &pic8.pal[j]);
+               corSemelhante = pic8.pal[j];
+            }
         }
+        //TROCA O PIXEL ORIGEM PELA COR MAIS SEMELHANTE
+        //pic.pixels[i] = corSemelhante;
+
+    }
         
     //
     // NÃO ALTERAR A PARTIR DAQUI!!!!
