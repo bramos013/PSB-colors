@@ -36,7 +36,7 @@ void load(char* name, Image24* pic)
     printf("Load: %d x %d x %d\n", pic->width, pic->height, chan);
 }
 
-double distanciaRGB(RGB8* p1, RGB8* p2){
+double distanciaRGB(RGB8* p1, RGB8* p2){    
     return pow(p1->r - p2->r, 2) + pow(p1->g - p2->g, 2) + pow(p1->b - p2->b, 2);
 }
 
@@ -44,17 +44,14 @@ double distanciaRGB(RGB8* p1, RGB8* p2){
 // quando for necessário
 
 void process()
-{
-    //int tam = 5000;
-    int tam = pic.width * pic.height;    
-    int cor[tam];
-    int count;
-    int continua=1;
+{    
+    int tam = pic.width * pic.height;        
+    int count;    
     RGB8 paletaCompleta[tam];
     RGB8 amostra[tam];
     RGB8 aux;
     
-        //CRIAÇÃO DO ARRAY DE CORES 
+        //CRIAÇÃO DO ARRAY DE CORES paletaCompleta
         for(int i = 0; i < tam; i++){
             //ORDENAÇÃO DO ARRAY
             for(int j = 0; j < tam; j++){                                     
@@ -84,7 +81,7 @@ void process()
                 }
             }
         }        
-        //ARMAZENA A QUANTIDADE DE CADA COR
+        //ARMAZENA A QUANTIDADE DE CADA COR NO ARRAY paletaCompleta
         for(int i = 0; i < tam; i++){
             count = 0;
             for (int j = 0; j < tam; j++){
@@ -98,7 +95,7 @@ void process()
             }
             paletaCompleta[i].quantidade = count;
         }         
-        //ARMAZENA UMA VEZ CADA COR  NO ARRAY DE AMOSTRA  
+        //ARMAZENA UMA VEZ CADA COR  NO ARRAY amostra  
         int p = 0;
         for (int i = 0; i < tam; i++){
             int valida=1;
@@ -107,14 +104,14 @@ void process()
                     valida = 0;                                        
                 }
             }
-            //Se o RGB não for repetido no vetor, adicionar na posicao p             
+            //SE O RGB NÃO FOR REPETIDO NO VETOR AMOSTRA, ADICIONA NA POSICAO p             
             if(valida == 1){                
                 amostra[p] = paletaCompleta[i];
                 p++;                
             }            
         }
 
-        //ORDENA A QUANTIDADE DE CADA COR
+        //ORDENA A QUANTIDADE DE CADA COR NO ARRAY amostra
         for(int i = 0; i < tam; i++){
             if(amostra[i].quantidade < amostra[i+1].quantidade){                                
                 aux = amostra[i];
@@ -122,34 +119,30 @@ void process()
                 amostra[i + 1] = aux;
             }            
         }
-
+        //ARMAZENA AS 256 CORES QUE MAIS SE REPETEM NA IMAGEM 
         for(int i = 0; i < 256; i++){
-        if(amostra[i].quantidade > 0 && amostra[i].quantidade < 48){
+        if(amostra[i].quantidade > 0 && amostra[i].quantidade < 48){ //VERIFICAR COM O PROFESSOR
             pic8.pal[i] = amostra[i];
         }
     }
 
     //VARIAVEL AUXILIAR PARA VERIFICAR A DISTANCIA ENTRE OS PIXELS
-    int menor=255;
+    int menor=255;        
     RGB8 corSemelhante;
 
     //CAPTA PIXELS DA IMAGEM DE ENTRADA
-    for (int i = 0; i < 100000; i++){
+    for (int i = 0; i < tam; i++){        
         //VERIFICA NA PALETA DE CORES QUAL A COR DO PIXEL ORIGEM É MAIS SEMELHANTE 
-        for (int j = 0; j < 256; j++){
-            printf("I=$%d J=$%d\n", i, j);
-
+        for (int j = 0; j < 256; j++){                                              
             if(menor > distanciaRGB(&pic.pixels[i], &pic8.pal[j])){
-               pic.pixels[i] = pic8.pal[j];
-               menor = distanciaRGB(&pic.pixels[i], &pic8.pal[j]);
-               corSemelhante = pic8.pal[j];
+                menor = distanciaRGB(&pic.pixels[i], &pic8.pal[j]);
+                corSemelhante = pic8.pal[i];
+                pic8.pal[i] = pic8.pal[j];                       
+                pic8.pal[j] = corSemelhante;                      
             }
-        }
-        //TROCA O PIXEL ORIGEM PELA COR MAIS SEMELHANTE
-        //pic.pixels[i] = corSemelhante;
-
+        }        
     }
-        
+
     //
     // NÃO ALTERAR A PARTIR DAQUI!!!!
     //
